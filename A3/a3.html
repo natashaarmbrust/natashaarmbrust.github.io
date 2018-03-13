@@ -1,0 +1,684 @@
+<!-- All rights reserved
+Natasha Armbrust, nka8
+Abhi Gupta, aag245 
+INFO 4310 Assignment 3-->
+
+
+<html>
+<head>
+  <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="http://d3js.org/queue.v1.min.js"></script>
+  <!-- <script src="http://d3js.org/topojson.v1.min.js"></script> -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Nunito:400,700,300' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Karla" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/js/bootstrap-select.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/css/bootstrap-select.min.css" rel="stylesheet" />
+  <!-- <script src="https://d3js.org/d3.v4.js"></script> -->
+  <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+  <link rel="stylesheet" href="//rawgithub.com/Caged/d3-tip/master/examples/example-styles.css">
+  <script src="https://d3js.org/d3-color.v1.min.js"></script>
+  <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+  <title>INFO 4310-Assignment1</title>
+</head>
+<style>
+  body {
+    margin: 25px;
+    margin-top: 20px;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: "Raleway", sans-serif;
+    fill: #333;
+    font-size: 12pt;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: bolder;
+  }
+
+  h1 {
+    margin-bottom: 15px !important;
+    font-size: 16pt !important;
+  }
+
+
+  p {
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif !important;
+    fill: #333;
+    font-size: 9pt;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 100px;
+    margin-right: 100px;
+    text-align: center;
+  }
+
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+  }
+
+  circle {
+    opacity: 1;
+  }
+
+  #graph {
+    fill: black;
+  }
+
+  .area {
+    fill: #333;/*#3379b7;*/
+    opacity: .3;
+  }
+
+  .group {
+    margin: 20px;
+  }
+
+  #filter {
+      border: solid #CCC 2px;
+      padding: 20px;
+      border-radius: 5px;
+  }
+
+  #percentNum {
+    font-size: 20pt !important;
+  }
+
+  #percentNumText {
+    font-size: 8pt !important;
+    margin: 0 !important;
+  }
+
+  text {
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    fill: #333;
+    font-size: 12px;
+  }
+
+  .d3-tip {
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    background: #333;
+    line-height: 1.25;
+  }
+
+  #pie {
+    margin-left: 50px;
+  }
+
+</style>
+
+<body>
+  <div class = "row">
+    <div class="col-md-3"></div>
+    <div class="col-md-9">
+    <h1>An Expos&eacute into Silicon Valley Diversity.</h1>
+    <p>In this graphic, we take a look at 2016 diversity data for 22 companies in Silicon Valley. 
+      We hope to gain insight about the <strong>diversity rank</strong>, the percentage of employees that fit a diversity 
+      criteria compared across the 22 companies, for each segment of diversity. The size of the logo represents the companies 
+    total employee size. <a href="https://github.com/cirlabs/Silicon-Valley-Diversity-Data">[Data Source]</a></p>
+    </div>
+  </div>
+  <div class="row">
+
+    <div class="col-md-3">
+    <div>
+    <h2>Filter Based on Diversity</h2>
+    <div class="group">
+    <select class="selectpicker" id="gender" multiple title="Filter on gender...">
+      <option id="2_0">Female</option>
+      <option id="2_1">Male</option>
+    </select>
+    </div>
+    <div class="group">
+    <select class="selectpicker" id="race" multiple title="Filter on race...">
+      <option id="1_0">Latino</option>
+      <option id="1_1">White</option>
+      <option id="1_2">Black and/or African American</option>
+      <option id="1_3">Native Hawaiian or Pacific Islander</option>
+      <option id="1_4">Asian</option>
+      <option id="1_5">American Indian or Alaskan Native</option>
+    </select>
+    </div>
+    <div class="group">
+    <button class = "btn btn-primary btn-sm btn-block" type="button" onclick="filterData()">Filter</button> 
+    </div>
+  </div>
+      <div id="pie">
+        <h1>How much of the pie?</h1>
+      </div>
+    </div>
+
+    <div class="col-md-9">
+      <div id="graph"></div>
+    </div>
+  </div>
+
+</body>
+<script>
+  // Type Enum
+  var Type = {
+    RACE: 1,
+    GENDER: 2,
+    JOB: 3,
+  };
+  
+  var data = [];
+  var data_by_company = [];
+  var filtered_data = []; // data to graph 
+  let company_types = new Set();
+  let race_types = new Set();
+  let gender_types = new Set();
+  let job_types = new Set();
+  let selected_types = { 
+    1: new Set(), // Race
+    2: new Set(), // Gender
+    3: new Set() // Job 
+  };
+
+  // Set the dimensions of the canvas / graph
+  var margin = {top: 30, right: 20, bottom: 50, left: 50},
+  width = 800 - margin.left - margin.right,
+  height = 520 - margin.top - margin.bottom;
+
+      // Set the ranges
+  var x = d3.scale.linear().range([0, width]);
+  var y = d3.scale.linear().range([height, 0]);
+  var radius = d3.scale.sqrt();
+  var area = d3.svg.area().interpolate("monotones");
+  var color = d3.interpolateYlOrBr;
+
+  // d3 text formatters 
+  var formatPercent = d3.format(".2%");
+  var formatNum = d3.format(".2s");
+
+  var addSizeRank = true;
+
+  // Adds the svg canvas
+  var svg = d3.select("#graph")
+  .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+      .attr("transform", 
+            "translate(" + margin.left + "," + margin.top + ")");
+
+
+  function idToName(id) {
+    if (id == "2_0") {
+      return ["Female", "female"]
+    }
+    if (id == "2_1") {
+      return ["Male", "male"]
+    }
+    if (id == "1_0") {
+      return ["Latino", "Latino"]
+    }
+    if (id == "1_1") {
+      return ["White", "White"]
+    }
+    if (id == "1_2") {
+      return ["Black and/or African American", "Black_or_African_American"]
+    }
+    if (id == "1_3") {
+      return ["Native Hawaiian or Pacific Islander", "Native_Hawaiian_or_Pacific_Islander"]
+    }
+    if (id == "1_4") {
+      return ["Asian", "Asian"]
+    }
+    if (id == "1_5") {
+      return ["American Indian or Alaskan Native", "American_Indian_Alaskan_Native"]
+    }
+  }
+
+  function nameToId(name) {
+    if (name == "female") {
+      return "2_0"
+    }
+    if (name == "male") {
+      return "2_1"
+    }
+    if (name == "Latino") {
+      return "1_0"
+    }
+    if (name == "White") {
+      return "1_1"
+    }
+    if (name == "Black_or_African_American") {
+      return "1_2"
+    }
+    if (name == "Native_Hawaiian_or_Pacific_Islander") {
+      return "1_3"
+    }
+    if (name == "Asian") {
+      return "1_4"
+    }
+    if (name == "American_Indian_Alaskan_Native") {
+      return "1_5"
+    }
+  }
+
+  // MARK - select picker functions 
+  $('#gender').on('changed.bs.select', function (e, id, old, newVal) {
+    var type = Type.GENDER;
+    onSelect(type, id, old);
+  });
+
+  $('#race').on('changed.bs.select', function (e, id, old, newVal) {
+    var type = Type.RACE;
+    onSelect(type, id, old);
+  });
+
+  function onSelect(type, id, add) {
+    var name = idToName(type + "_" + id)[1];
+    if(add) { //selected this type 
+      selected_types[type].add(name);
+    } else {
+      if (selected_types[type].has(name)) { 
+        // remove button from filter
+        selected_types[type].delete(name);
+      }
+    }
+  }
+
+
+  d3.csv("Reveal_EEO1_for_2016.csv", function(error, d) {
+    createDataStructures(error, d, createViz);
+  });
+
+
+  function createDataStructures(error, d, callback) {
+    if (error) { console.log(error); } 
+
+      // filter out the totals and previous totals rows 
+    data = d.filter( function (r) { 
+      return r.job_category != "Totals" && r.job_category != "Previous_totals" 
+        && r.job_category != "Overall_totals" && r.gender != "";
+    });
+
+    // not sure if we need this data structure but i want to keep it just in case
+    data = data.map( function (row) { // map the data into our own structure 
+      r =  {
+        company: row["company"],
+        race: row["race"],
+        gender: row["gender"],
+        job: row["job_category"],
+        count: row["count"],
+      }
+      // add types to our sets so we get all types 
+      race_types.add(r.race);
+      gender_types.add(r.gender);
+      job_types.add(r.job);
+      company_types.add(r.company);
+      return r;
+    });
+
+    var data_group_by_company = {};
+    // take the data we just filtered and mapped and group by company
+    data.forEach( function (entry) { 
+    // map with structure company: [ {race, gender, job, count}, ... ]
+      var company = entry.company;
+      var metrics = {
+        race: entry.race,
+        gender: entry.gender,
+        job: entry.job,
+        count: entry.count
+      };
+
+      if(company in data_group_by_company) {
+        data_group_by_company[company].push(metrics);
+      } else {
+        // add company if we haven't seen it yet 
+        data_group_by_company[company] = [metrics];
+      }
+    });
+
+    
+
+    for (var key in data_group_by_company) {
+      var entries = data_group_by_company[key];
+      var total = 0
+      var entry = { "name": key, "entries": entries, "total": total}
+      data_by_company.push(entry)
+    }
+
+    data_by_company.forEach( function(d) {
+      d.total = sumEntries(d);
+    });
+
+    filtered_data = data_by_company;
+    filtered_data.sort(function(x, y) {
+      return d3.descending(x.total, y.total);
+    })
+    callback();
+  } 
+
+  // sum entries of a "name": Airbnb, "entries": [ {"race": Latino, gender: "male", job: "Executive/Senior officials & Mgrs", count: "0}, ...]
+  function sumEntries(d) {
+    return d3.sum(d.entries, p => p.count);
+  }
+
+  function log10(val) {
+  return Math.log(val) / Math.log(1.5);
+}
+
+  function scaleSize(d) {
+    return Math.log(d.total);
+  }
+
+  function percentage(d) {
+    return sumEntries(d) / d.total
+  }
+
+  function colorScale(d) {
+    return "#eee";
+    //return color(filtered_data.indexOf(d) / filtered_data.length);
+  }
+
+  function createViz() {
+    // GRAPH CREATION 
+
+    // Scale the range of the data
+    x.domain([0, data_by_company.length - 1]);
+    y.domain([0, 100]) //(width / (2 * (data_by_company.length - 1)))
+    radius.range([8, (width / (2 * (data_by_company.length - 1))) + 10]);
+    radius.domain(d3.extent(data_by_company, d => scaleSize(d)));
+        // Define the axes
+    var xAxis = d3.svg.axis().scale(x)
+        .orient("bottom").ticks(0);
+
+    var yAxis = d3.svg.axis().scale(y)
+        .orient("left").ticks(10);
+
+    // Define the area 
+    area
+      .x(function(d) { return x(filtered_data.indexOf(d)); })
+      .y1(function(d) { return y(percentage(d) * 100); });
+
+    area.y0(y(0));
+
+    // Add the X Axis
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    // Add the Y Axis
+    svg.append("g")
+        .attr("class", "y axis")
+        .classed("yAxisLabel", true)
+        .call(yAxis);
+
+    // add labels to axis 
+    svg.append("text")
+        .attr("text-anchor", "middle") 
+        .attr("transform", "translate("+ -2 * margin.right +","+(height/2)+")rotate(-90)")  
+        .text("Percentage of Employees");
+
+    svg.append("text")
+        .classed("xAxisLabel", true)
+        .attr("text-anchor", "middle") 
+        .attr("transform", "translate("+ (width/2) +"," +(height + .75 * margin.bottom)+")")  // centre below axis 
+        .text("Diversity Rank");
+
+    var stacks = svg.append('g')
+        .classed('stacks', true);
+
+    // tooltip dimensions
+    var tooltip = d3.tip()
+      .attr("class", "d3-tip")
+      .offset([-10, 0])
+      .html(function(d) {
+        var text = "<span><strong>" + d.name + "</strong></span>"
+          + "<br><span>Percentage of Employees: " + formatPercent(percentage(d)) + "</span>" 
+          + "<br><span>Diversity Total: " + formatNum(sumEntries(d)) + "</span>" 
+          + "<br><span>Employee Total: " + formatNum(d.total) + "</span>";
+          if (addSizeRank) {
+            text = text + "<br><span>Employee Size Rank: " + (filtered_data.indexOf(d) + 1) + "</span>";
+          } else {
+             text = text +  "<br><span>Diversity Rank: " + (filtered_data.indexOf(d) + 1) + "</span>";
+          }
+          return text;
+      })
+
+    svg.call(tooltip);
+
+        // Add the area 
+    stacks
+        .append("path")
+        .attr("class", "area")
+        .attr("d", area(filtered_data));
+
+    stacks.selectAll("image")
+        .data(filtered_data)
+        .enter()
+        .append("svg:image")
+        .attr("x", function(d) { return x(filtered_data.indexOf(d)) - radius(scaleSize(d)); })
+        .attr("y", function(d) { return y( percentage(d) * 100 ) - radius(scaleSize(d)); })
+        .attr("height", function(d) { return 2 * radius(scaleSize(d)) + "px"})
+        .attr("width", function(d) { return 2 * radius(scaleSize(d)) + "px"})
+        .attr("xlink:href", function(d) { if(d.name != "HP Inc.") 
+          { return "img/" + d.name + ".png"} return "img/HP.png";})
+        .on('mouseover', function() {
+          d = d3.select(this).data()[0];
+          d3.select(this).moveToFront();
+          tooltip.show(d);
+        })
+        .on('mouseout', function() {
+          tooltip.hide();
+        });
+
+    d3.select(".yAxisLabel").moveToFront();
+    overallPieChart();
+  }
+
+  // https://github.com/wbkd/d3-extended
+    d3.selection.prototype.moveToFront = function() {  
+      return this.each(function(){
+        this.parentNode.appendChild(this);
+      });
+    };
+
+    d3.selection.prototype.moveToBack = function() {  
+        return this.each(function() { 
+            var firstChild = this.parentNode.firstChild; 
+            if (firstChild) { 
+                this.parentNode.insertBefore(this, firstChild); 
+            } 
+        });
+    };
+
+  function addXAxisLabel() {
+    var label = "Diversity Rank for ";
+    var type = Type.RACE;
+    if (selected_types[type].size == race_types.size - 1 || selected_types[type].size == 0) {
+      label += " All Races "
+    } else {
+      race_types.forEach( v => { 
+        if (selected_types[type].has(v)) {
+          var name = idToName(nameToId(v))[0];
+          label = label + name + " ";
+        }
+      });
+    }
+
+    var type = Type.GENDER;
+    if (selected_types[type].size == gender_types.size || selected_types[type].size == 0) {
+      label += " All Genders "
+    } else {
+      gender_types.forEach( v => { 
+        if (selected_types[type].has(v)) {
+          var name = idToName(nameToId(v))[0];
+          label = label + name + " ";
+        }
+    });
+    }
+    
+    if (label == "Diversity Rank for ") { // no selected types
+      label = "Diversity Rank"
+    }
+    d3.select(".xAxisLabel").text(label);
+  }
+
+
+  function plotPoints() {
+    var duration = 2500;
+    var ease = "linear";
+
+    var stacks = svg.selectAll('.stacks').data(data);
+
+    filtered_data.sort(function(x, y) {
+      if (addSizeRank) {
+        return d3.descending(x.total, y.total);
+      }
+      return d3.descending(percentage(x), percentage(y));
+    })
+
+    stacks.select("path")
+      .transition()
+      .ease("backOut")
+      .delay(duration/4)
+      .duration(.75 * duration)
+      .attr("d", area(filtered_data));
+
+    stacks.selectAll("image")
+        .data(filtered_data)
+        .transition()
+        .ease("backIn")
+        .duration(duration/4)
+        //.attr("height", function(d) { return 2 * radius(scaleSize(d)) + "px"})
+        //.attr("width", function(d) { return 2 * radius(scaleSize(d)) + "px"})
+        .attr("opacity", 0);
+
+  stacks.selectAll("image")
+      .data(filtered_data)
+      .transition()
+      .ease("backOut")
+      .delay(duration/4)
+      .duration(.75 * duration)
+      .attr("opacity", 1)
+      .attr("x", function(d) { return x(filtered_data.indexOf(d)) - radius(scaleSize(d)); })
+      .attr("y", function(d) { return y( percentage(d) * 100 ) - radius(scaleSize(d)); })
+      .attr("height", function(d) { return 2 * radius(scaleSize(d)) + "px"})
+      .attr("width", function(d) { return 2 * radius(scaleSize(d)) + "px"})
+      .attr("xlink:href", function(d) { if(d.name != "HP Inc.") 
+         { return "img/" + d.name + ".png"} return "img/HP.png";});
+    
+    addXAxisLabel();
+    d3.select(".yAxisLabel").moveToFront();
+  }
+
+  // filters data based off OR logic for within a type and AND logic between types
+  // ex: Buttons selected: MALE, FEMALE, LATINO -> filter for all latino men and women 
+  function filterData() {
+    filtered_data = data_by_company.map( function(row) {
+      var company = row.name;
+      var entries = row.entries.filter( function (p) {
+        var keep = true;
+        for (var type in selected_types) {
+          if (type == Type.RACE) {
+            keep = (selected_types[type].has(p.race) 
+              || selected_types[type].size == 0) && keep;
+          } else if (type == Type.GENDER) {
+            keep = (selected_types[type].has(p.gender) 
+              || selected_types[type].size == 0) && keep;
+          } else if (type == Type.JOB) {
+            keep = (selected_types[type].has(p.job) 
+              || selected_types[type].size == 0) && keep;
+          }
+        }
+        return keep;
+      });
+      return {"name": company, "entries": entries, "total": row.total};
+    });
+    if ((selected_types[Type.RACE].size == race_types.size || selected_types[Type.RACE].size == 0)
+      && (selected_types[Type.GENDER] == gender_types.size || selected_types[Type.GENDER].size == 0)) {
+      addSizeRank = true;
+    } else {
+      addSizeRank = false;
+    }
+    plotPoints();
+    overallPieChart();
+  }
+
+  //Function to create overall pie chart on bottom left
+  function overallPieChart(){
+  	document.getElementById('pie').innerHTML = ""; //Clear div
+  	var w = 150;
+  	var h = 150;
+  	var r = h/2;
+  	var aColor = [
+  	'rgb(135,191,135)',
+  	'rgb(210,231,210)'
+  	]
+
+  	total = d3.sum(data_by_company, function(d){
+  		return d.total;
+  	});
+
+  	var subset = 0;
+  	filtered_data.forEach( function(d) {
+  		subset += sumEntries(d);
+  	});
+
+  	console.log(subset)
+  	console.log(total)
+  	console.log(filtered_data)
+
+  	var data = [
+  	{"label":"Subset", "value": subset},
+  	{"label":"Total Employees", "value": total-subset}
+  	];
+
+
+  var vis = d3.select('#pie').append("svg:svg")
+        .data([data])
+        .attr("width", w)
+        .attr("height", h)
+        .append("svg:g")
+        .attr("transform", "translate(" + r + "," + r + ")");
+
+  var pie = d3.layout.pie().value(function(d){return d.value;});
+
+	// Declare an arc generator function
+	var arc = d3.svg.arc().outerRadius(r);
+
+	// Select paths, use arc generator to draw
+	var arcs = vis.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice");
+	arcs.append("svg:path")
+	.attr("fill", function(d, i){return aColor[i];})
+	.attr("d", function (d) {return arc(d);})
+	;
+
+  vis.append("foreignObject")
+      .attr("transform", "translate(" + -1 * r + "," + -1 * r/2 + ")")
+      .attr("width", w)
+      .attr("height", h)
+      .style("text-align", "center")
+      .html("<div><h1 id='percentNum'>" 
+        + formatPercent(subset/total) + 
+        "</h1><p id='percentNumText'>of all employees<p></div>");
+
+  }
+
+  d3.selection.prototype.appendHTML =
+    d3.selection.enter.prototype.appendHTML = function(HTMLString) {
+        return this.select(function() {
+            return this.appendChild(document.importNode(new DOMParser().parseFromString(HTMLString, 'text/html').body.childNodes[0], true));
+        });
+    }
+</script>
+</html>
