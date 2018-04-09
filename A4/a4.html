@@ -1,0 +1,509 @@
+<!-- All rights reserved
+Natasha Armbrust, nka8
+Abhi Gupta, aag245 
+INFO 4310 Assignment 4 -->
+
+
+<html>
+<head>
+  <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="http://d3js.org/queue.v1.min.js"></script>
+  <script src="https://d3js.org/topojson.v1.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/js/bootstrap-select.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/css/bootstrap-select.min.css" rel="stylesheet" />
+  <script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+  <script src="assets/boston.geojson"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+  <!-- FONTS -->
+  <link href="https://fonts.googleapis.com/css?family=Glegoo|Montserrat" rel="stylesheet">
+  
+  <title>INFO 4310-Assignment1</title>
+</head>
+<style>
+  body {
+    margin: 25px;
+    margin-top: 20px;
+    background-color: #F4F4F4;
+  }
+
+  h1 {
+    font-family: 'Glegoo', serif;
+    font-size: 32pt;
+    text-align: center;
+    color: #373737;
+  }
+
+  h2 {
+    font-family: 'Glegoo', serif;
+    font-size: 20pt;
+    text-align: center;
+    color: #373737;
+  }
+
+
+  p {
+    font-family: 'Montserrat', sans-serif;
+    fill: #333;
+    font-size: 9pt;`
+    text-align: center;
+  }
+
+  .navbar-inverse {
+    border-width: 0px;
+    border-radius: 12px;
+    background-color: #373737;
+    border-color: #373737;
+    min-height: 40px;
+    margin: 0px;
+    margin-top: 20px;
+  }
+
+  .container {
+    padding: 0px;
+  }
+
+  ul {
+    font-family: 'Montserrat', sans-serif;
+    color: #C0B283;
+    list-style-type: none;
+    font-size: 12pt;
+    margin: 0px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  #nav li { 
+    margin-left: 5px;
+    display: inline-block;
+  }
+
+  .dropdown-menu li { 
+    margin-left: 0px;
+    display: inherit !important;
+  }
+
+
+  input {
+    background-color: white;
+    color: #373737;
+    width: 55px;
+    border-width: 1px;
+    border-color: #DCD0C0;
+    border-radius: 3px;
+    border-style: solid;
+    margin-left: 5px;
+  }
+
+  button {
+    background-color: #C0B283;
+    color: #373737;
+    border-width: 1px;
+    border-color: #C0B283;
+    border-radius: 3px;
+    border-style: solid;
+    margin-left: 5px;
+  }
+
+  .listItem {
+    display: inline-table;
+    width: 500px;
+    margin: 10px;
+    background-color: #F4F4F4;
+    /*border-width: 0px;*/
+    border-style: solid;
+    border-color: #373737;
+    padding-bottom: 10px;
+  }
+
+  .listItem img {
+    display: inline;
+    border-radius: 25px;
+    width: 50px;
+    height: 50px;
+    margin: 10px;
+    margin-top: 30px;
+    text-align: left !important;
+    border-width: 0px;
+    border-style: solid;
+    border-color: #373737;
+  }
+
+  .listTitle {
+    display: inline;
+    margin-top: 10px;
+    font-family: 'Glegoo', serif;
+    color: #373737;
+    font-size: 13pt !important;
+  }
+
+  .listOutline {
+    display: inline;
+    margin-top: -30px;
+    width: 375px;
+    display: inherit;
+  }
+
+  .listNeigh {
+    font-size: 8pt;
+    font-weight: bolder;
+  }
+
+  .listReview {
+    display: inline;
+    color: #C0B283;
+    font-size: 8pt;
+  }
+
+  .listRating {
+    display: inline;
+    color: #C0B283;
+    font-size: 8pt;
+  }
+
+  .listCateg {
+    color: #373737;
+    opacity: 0.75;
+    font-size: 8pt;
+    font-weight: bolder;
+  }
+
+  .listUrl {
+    color: #373737;
+    font-weight: bolder;
+    text-decoration: none;
+    font-size: 8pt !important;
+  }
+
+  .listItem .bigText {
+    margin: 0px;
+    margin-right: 2px;
+    font-weight: bolder;
+    font-family: 'Glegoo', serif;
+    text-align: center;
+    color: #373737;
+    display: inline;
+    font-size: 13pt !important;
+  }
+
+  .deleteItem {
+    display: inline;
+    width: 30px;
+    text-align: right;
+  }
+
+  .deleteItem img {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .card {
+    display: inline-block;
+    width: 300px;
+    background-color: #373737;
+    padding-bottom: 10px;
+    border-radius: 12px;
+  }
+
+  .card img {
+    display: inline;
+    border-radius: 25px;
+    width: 50px;
+    height: 50px;
+    text-align: left !important;
+    margin-left: 5px !important;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #373737;
+  }
+
+  .card #url {
+    color: #373737;
+    font-weight: bolder;
+    text-decoration: none;
+    font-size: 8pt !important;
+  }
+
+  .card #title {
+    margin-top: 10px;
+    padding: 10px;
+    padding-bottom: 0px;
+    font-family: 'Glegoo', serif;
+    text-align: center;
+    color: #373737;
+    font-size: 13pt !important;
+  }
+
+  .card #neigh {
+    font-size: 8pt;
+    font-weight: bolder;
+  }
+
+  .outline {
+    margin: 25px;
+    margin-top: -25px;
+    width: 250px;
+    margin-bottom: 0px;
+    max-height: 220px;
+    min-height: 50px;
+    text-align: center;
+    background-color: #F4F4F4;
+    border-radius: 12px;
+  }
+
+  #review {
+    display: inline;
+    color: #C0B283;
+    font-size: 8pt;
+  }
+
+  #rating {
+    display: inline;
+    color: #C0B283;
+    font-size: 8pt;
+  }
+
+  #categ {
+    color: #373737;
+    opacity: 0.75;
+    font-size: 8pt;
+    font-weight: bolder;
+  }
+
+  .bigText {
+    margin: 10px;
+    font-weight: bolder;
+    font-family: 'Glegoo', serif;
+    text-align: center;
+    color: #373737;
+    display: inline;
+    font-size: 13pt !important;
+  }
+
+  #snippet {
+    font-size: 8pt;
+    max-height: 100px;
+    padding-bottom: 10px;
+    padding: 10px;
+  }
+
+  .swipe {
+    margin: 10px !important;
+    width: 50px !important;
+    height: 50px !important;
+    display: inline;
+    cursor: pointer;
+  }
+
+  #swipeContainer {
+    margin-left: 25%;
+  }
+
+  .center {
+    margin-top: 50px;
+    margin-left: 5%;
+  }
+
+  .center h2 {
+    text-decoration: underline;
+    text-align: left !important;
+    padding-bottom: 20px;
+  }
+
+  #nothing {
+    margin: 10px;
+    font-weight: bolder;
+    font-family: 'Glegoo', serif;
+    text-align: center;
+    color: #F4F4F4;
+    font-size: 13pt !important;
+  }
+
+  .list h2 {
+    text-decoration: underline;
+    text-align: left;
+  }
+
+  #map {
+    display: inline-block;
+  }
+
+  svg {
+    background-color: #373737;
+    vertical-align: top;
+    border-radius: 12px;
+    border-color: #ccc;
+    border-width: 2px;
+    border-style: none;
+  }
+
+  .toolTip {
+    position: absolute;
+    display: none;
+    height: auto;
+    width: 200px;
+    opacity: 1;
+    background: none repeat scroll 0 0 #F4F4F4;
+    border: 1px solid #6F257F;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .toolTip img {
+    margin-left: -30px;
+    display: inline;
+    border-radius: 25px;
+    width: 20px;
+    height: 20px;
+    margin: 0px;
+    text-align: left !important;
+    border-width: 0px;
+    border-style: solid;
+    border-color: #373737;
+  }
+
+  .toolTip .listTitle {
+    display: inline;
+    margin-top: 10px;
+    font-family: 'Glegoo', serif;
+    color: #373737;
+    font-size: 10pt !important;
+  }
+
+  .selectedItem {
+    border-radius: 10px;
+  }
+
+  #graph {
+    display: inline;
+    
+  }
+
+  #graph svg {
+    background-color: #373737;
+    border-style: none;
+  } 
+
+  .center h2 {
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  #random {
+    margin: 20px;
+  }
+
+  text {
+    fill: #F4F4F4;
+  }
+
+  #graph line {
+    stroke: #F4F4F4;
+  }
+
+  #graph path {
+    stroke: #F4F4F4;
+  }
+
+  /*
+
+  COLOR THEME
+
+  SKY: #CAEBF2;
+  CARBON: #A9A9A9;
+  WATERMELON: #FF3B3F;
+  NEUTRAL: #EFEFEF;
+
+  PAGE GOLD: #C0B283;
+  SILK: #DCD0C0;
+  PAPER: #F4F4F4;
+  CHARCOAL: #373737;
+  */
+
+</style>
+
+<body>
+
+<h1>tastry</h1><h2>explore food</h2>
+
+<!-- navbar -->
+  <div class="navbar-wrapper">
+    <div class="container"> 
+      <nav class="navbar navbar-inverse navbar-static-top">
+        <div class="container">
+          <ul id="nav">
+            <li>Rating >=<input id="rating" type="number" min="0" max="5" placeholder="0"></li>
+            <li>Review Count >=<input id="review" type="number" min="0" max="500" step="100" placeholder="0"></li>
+            <li>Categories
+              <select class="selectpicker" id="category" multiple title="Pick one or more...">
+              </select>
+            </li>
+            <li>Neighborhood
+              <select class="selectpicker" id="neighborhood" multiple title="Pick one or more...">
+              </select>
+            </li>
+            <li>
+              <button name="submit" onclick="filterData()">Filter</button>
+            </li>
+          </ul>
+        </div>
+      </nav> 
+    </div>
+    </div>
+  <!-- //navbar -->
+
+<div class="center">
+  
+  <!-- CARD -->
+  <div class="card">
+    <img id="cardImage" src="http://s3-media3.fl.yelpcdn.com/bphoto/TfVRABVbRxCANHmLxhy_Ag/ms.jpg" alt="Image not avaliable">
+    <div class="outline">
+      <div id="title"></div>
+      <div id="neigh"></div>
+
+      <div id="rating"><div class ="bigText"></div>Rating</div>
+      <div id="review"><div class ="bigText"></div>Reviews</div>
+      <div id="categ"></div>
+      <div id="snippet">
+      </div>
+      <a href="http://www.yelp.com/biz/wheelhouse-boston-3" id="url">See more</a>
+    </div>
+    <div id="swipeContainer">
+      <img src="assets/cross.png" class="swipe" onclick="unlike()" alt="cross">
+      <img src="assets/heart.png" class="swipe" onclick="like()" alt="heart">
+    </div>
+  <div id="nothing">Nothing meets this criteria</div>
+   <button name="submit" id="random" onclick="suggest()">Suggest</button>
+  </div>
+ 
+  <!-- END CARD -->
+
+  <div id="map">
+  </div>
+ <!--  <h2>How does this recommendation compare?</h2> -->
+  <div id="graph">
+  </div>
+</div>
+
+<div class="list">
+    <h2>My Likes<img src="assets/heart.png" class="swipe" alt="heart"></h2>
+    <div class="listItems">
+
+       <!-- LIKED ITEMS -->
+
+    </div>
+</div>
+
+
+
+</body>
+<script type="text/javascript" src="data.js"></script> 
+<script type="text/javascript" src="plot.js"></script> 
+
+
+</html>
