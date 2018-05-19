@@ -1,0 +1,1116 @@
+<html>
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Titillium+Web' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link href='stylesheet.css' rel='stylesheet' type='text/css' />
+<!-- Load the d3 libraries. -->
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="https://d3js.org/d3-time.v0.2.min.js"></script>
+<script src="https://d3js.org/d3-time-format.v0.3.min.js"></script>
+</head>
+<body>
+
+<div id="body_wrapper">
+    <h1> Trends in the NHL Over the Past 15 Years </h1>
+    <p> Ever since my father introduced me to hockey back in 2000 (age 6), it has become
+    a tradition to sit down together and watch our hometown Pittsburgh Penguins duke it out.
+    As time went on, we noticed some changes in the game, and found that the NHL was changing
+    as we grew older. We formed a few hypothesises, and now, we are going to put them to the test.</p>
+
+    <h3>Which teams are winning now?</h3>
+    <p> Before we dig into our theories, let's take a look at how some teams are doing compared to 15 years ago...</p>
+	<p>Teams that were on top 15 years ago are not necessarily having stellar seasons now, as the league changes a lot over time.
+    We graphed percentage wins for 2001 and 2014 in order to see the percentage change for each team.
+    The ones highlighted have the greatest percent changes as per the key below...</p>
+
+    <div id="percentageChange">
+        <div id="percentKey"></div>
+<script>
+	var percentKey = d3.select("#percentKey").append("svg").attr("width", 300).attr("height", 50);
+	percentKey.append("circle").attr("r", 5).attr("cx", 5).attr("cy", 5).style("fill", "#598fbc").style("opacity", "1");
+	percentKey.append("text").attr("transform", "translate(" + 15 + "," + 9 + ")")
+					.attr("text-anchor", "start")
+					.style("color", "#C0C0C0")
+					.style("font-size", "8pt")
+					.text("Teams winning 25% more games");
+	percentKey.append("circle").attr("r", 5).attr("cx", 5).attr("cy", 30).style("fill", "#d1776d").style("opacity", "1");
+	percentKey.append("text").attr("transform", "translate(" + 15 + "," + 35 + ")")
+					.attr("text-anchor", "start")
+					.style("color", "#C0C0C0")
+					.style("font-size", "8pt")
+					.text("Teams losing 15% more games");
+
+</script>
+
+    </div>
+
+<script>
+
+var width1 = 350,
+    height1 = 500;
+	
+var svg1 = d3.select("#percentageChange").append("svg")
+    .attr("width", width1)
+    .attr("height", height1);
+
+var groups = svg1.append("g");
+var start = new Date(2001);
+var end = new Date(2014);
+var parseDate = d3.time.format("%Y");
+var padding1 = 70;
+var xScale1 = d3.scale.ordinal().domain(['2001', '2014']).range([padding1, width1 - padding1]);
+//xScale.ticks(d3.time.year,1);
+//xScale.tickFormat("%Y");
+var yScale1 = d3.scale.linear().domain([.2, .7]).range([height1 - padding1, padding1/2]);
+
+var xAxis1 = d3.svg.axis().scale(xScale1).orient("bottom").ticks(1).tickValues(['2001', '2014']).innerTickSize(-height1 + padding1 + padding1/2).outerTickSize(0).tickPadding(10);
+
+var yAxis1 = d3.svg.axis().scale(yScale1).orient("left").tickSize(-width1+ 2* padding1).ticks(9).tickPadding(2).tickFormat(d3.format("%"));
+
+d3.json("nhlTeamStats.json", function(error, data){
+	if (error) {
+		console.log(error);
+	}
+
+	var line1 = d3.svg.line().interpolate("linear")
+		.x(function(d) { 
+			if(d.year == "2001"){
+				svg1.append("circle").attr("r", 2).attr("cx", xScale1('2001')).attr("cy", yScale1(d.wins/d.games_played)).style("fill", "#fff").style("stroke", "#598fbc").style("opacity", "0.3");
+				return xScale1('2001'); 
+			}
+			if(d.year == "2014"){
+				svg1.append("circle").attr("r", 2).attr("cx", xScale1('2014')).attr("cy", yScale1(d.wins/d.games_played)).style("fill", "#fff").style("stroke", "#598fbc").style("opacity", "0.3");
+				return xScale1('2014');
+			}
+		}).y(function(d) { 
+				return yScale1(d.wins/d.games_played);
+		});
+
+		var line4 = d3.svg.line().interpolate("linear")
+		.x(function(d) { 
+			if(d.year == "2001"){
+				svg1.append("circle").attr("r", 2).attr("cx", xScale1('2001')).attr("cy", yScale1(d.wins/d.games_played)).style("fill", "#fff").style("stroke", "#d1776d").style("opacity", "0.3");
+				return xScale1('2001'); 
+			}
+			if(d.year == "2014"){
+				svg1.append("circle").attr("r", 2).attr("cx", xScale1('2014')).attr("cy", yScale1(d.wins/d.games_played)).style("fill", "#fff").style("stroke", "#d1776d").style("opacity", "0.3");
+				return xScale1('2014');
+			}
+		}).y(function(d) { 
+				return yScale1(d.wins/d.games_played);
+		});
+
+
+	var line2 = d3.svg.line().interpolate("linear")
+	.x(function(d) { 
+		if(d.year == "2001"){
+			svg1.append("circle").attr("r", 2.5).attr("cx", xScale1('2001')).attr("cy", yScale1(d.wins/d.games_played)).style("fill", "#598fbc").style("stroke", "#598fbc").style("opacity", "1");
+			return xScale1('2001'); 
+		}
+		if(d.year == "2014"){
+			svg1.append("circle").attr("r", 2.5).attr("cx", xScale1('2014')).attr("cy", yScale1(d.wins/d.games_played)).style("fill", "#598fbc").style("stroke", "#598fbc").style("opacity", "1");
+			return xScale1('2014');
+		}
+	}).y(function(d) { 
+			return yScale1(d.wins/d.games_played);
+	});
+
+	var line3 = d3.svg.line().interpolate("linear")
+		.x(function(d) { 
+			if(d.year == "2001"){
+				svg1.append("circle").attr("r", 2.5).attr("cx", xScale1('2001')).attr("cy", yScale1(d.wins/d.games_played)).style("fill", "#d1776d").style("stroke", "#d1776d").style("opacity", "1");
+				return xScale1('2001'); 
+			}
+			if(d.year == "2014"){
+				svg1.append("circle").attr("r", 2.5).attr("cx", xScale1('2014')).attr("cy", yScale1(d.wins/d.games_played)).style("fill", "#d1776d").style("stroke", "#d1776d").style("opacity", "1");
+				return xScale1('2014');
+			}
+		}).y(function(d) { 
+				return yScale1(d.wins/d.games_played);
+		});
+
+	var percentageData = data.teams.map(function(obj){
+ 			return obj.team.filter(function(obj) {
+  			return obj.year == "2014" || obj.year == "2001";
+ 		})
+	});
+
+	function yHeight(team) {
+		return yScale1(team[1].wins/team[1].games_played);
+	}
+
+	function text(team) {
+		return team[0].name;
+	}
+
+	function cx(d) {
+		if(d.year == "2001"){
+			return xScale1('2001'); 
+		}
+		if(d.year == "2014"){
+			return xScale1('2014');
+		}
+	}
+
+
+	percentageData.forEach( function (team) {
+		if(team[0].name == "Phoenix Coyotes"){
+			svg1.append("path").attr("d", line3(team))
+			.style("stroke", "#d1776d").style("fill", "none").style("opacity", "1").style("stroke-width", 2);
+			svg1.append("text")
+			.attr("transform", "translate(" + (width1 - padding1 +5) + "," + yHeight(team) + ")").attr("dy", "1em")
+			.attr("text-anchor", "start")
+			.style("color", "#C0C0C0")
+			.style("font-size", "5pt")
+			.style("font-weight", "bold")
+			.text(text(team));
+		} else if ((team[0].wins/team[0].games_played) - (team[1].wins/team[1].games_played) > .15){
+			svg1.append("path").attr("d", line3(team))
+			.style("stroke", "#d1776d").style("fill", "none").style("opacity", "1").style("stroke-width", 2);
+			svg1.append("text")
+			.attr("transform", "translate(" + (width1 - padding1 +5) + "," + yHeight(team) + ")")
+			.attr("text-anchor", "start")
+			.style("color", "#C0C0C0")
+			.style("font-size", "5pt")
+			.style("font-weight", "bold")
+			.text(text(team));
+		} else if ((team[0].wins/team[0].games_played) - (team[1].wins/team[1].games_played) < -.25){
+			svg1.append("path").attr("d", line2(team))
+				.style("stroke", "#598fbc").style("fill", "none").style("opacity", "1").style("stroke-width", 2);
+			svg1.append("text")
+			.attr("transform", "translate(" + (width1 - padding1 +5) + "," + yHeight(team) + ")")
+			.attr("text-anchor", "start")
+			.style("color", "#C0C0C0")
+			.style("font-size", "5pt")
+			.style("font-weight", "bold")
+			.text(text(team));
+		} else {
+			if ((team[0].wins/team[0].games_played) - (team[1].wins/team[1].games_played) < 0){
+				svg1.append("path").attr("d", line1(team))
+					.style("stroke", "#598fbc").style("fill", "none").style("opacity", "0.2").style("stroke-width", 2);
+			} else {
+				svg1.append("path").attr("d", line4(team))
+									.style("stroke", "#d1776d").style("fill", "none").style("opacity", "0.2").style("stroke-width", 2);
+			}
+		}
+
+	});
+
+});
+
+
+
+
+svg1.append("g").attr("transform", "translate(0, " + (height1 - padding1) + ")").attr("class", "axis").call(xAxis1).append("text").style("text-anchor", "middle").attr("x", (width1/2)).attr("y", padding1);
+//.text("Year");;
+svg1.append("g").attr("transform", "translate(" + padding1 + ",0)").attr("class", "axis").call(yAxis1).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height1/2).attr("y", -padding1/1.5).text("Percentage of Games Won");
+
+</script>
+    <h3> Are goals going up or down? </h3>
+    <p> "High scoring games are a thing of the past", my father told me not too long ago. It's something that I personally started to notice in the
+    past few seasons. So to test this theory, we plotted the average number of goals per game for each season. Interestingly, it appears that goals have made
+    subtle increase since 2001, but have been on the decline since the 2005-06 season.</p>
+<!-- The SVG element will go in here -->
+    <div id="goalsGraph">
+
+    </div>
+<script>
+
+var width = 750,
+    height = 520;
+	
+var svg = d3.select("#goalsGraph").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var g = svg.append("g");
+var t0 = new Date(2001);
+var tEnd = new Date(2014);
+var parseDate = d3.time.format("%Y");
+var padding = 70;
+var xScale = d3.time.scale().domain([t0, tEnd]).range([padding, width - padding]);
+
+var yScale = d3.scale.linear().domain([1.8, 4]).range([height - padding, padding]);
+var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(14).tickFormat(d3.format("23d")).tickPadding(10);
+var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(10).tickPadding(10).tickFormat(d3.format("d"));
+var color = d3.scale.category10();
+
+var svgLayer1 = svg.append("g");
+var svgLayer2 = svg.append("g");
+var svgLayer3 = svg.append("g");
+
+d3.json("nhlTeamStats.json", function(error, data){
+	if (error) {
+		console.log(error);
+	}
+
+	data.teams.forEach( function(d) {
+
+		xScale.domain(d3.extent(d.team, function(d) 
+			{ 
+				//console.log(d.year);
+				var parseDate = d3.time.format("%Y");
+				var date = new Date("1-01-"+ d.year);
+				year = parseDate(date);
+				return year; }));
+	});
+
+	function textHeight(team) {
+		return yScale(team[12].gf_per_game);
+	}
+
+	function text(team) {
+		return team[0].name;
+	}
+
+	function lineStep(points) {
+		  var i = 0,
+		      n = points.length,
+		      p = points[0],
+		      path = [p[0], ",", p[1]];
+		  console.log(p);
+		  console.log(p[0]);
+		  while (++i < n) path.push("H", (p[0] + (p = points[i])[0]) / 2);
+		  if (n > 1) path.push("H", p[0]);
+		  return path.join("");
+	}
+
+	var line = d3.svg.line().interpolate("linear-open")
+		.x(function(d) { 
+			var parseDate = d3.time.format("%Y");
+			var date = new Date("1-01-"+ d.year);
+			year = parseDate(date);
+			//console.log(xScale(year));
+			return xScale(year); 
+		}).y(function(d) { 
+			return yScale(d.gf_per_game); });
+
+
+
+
+	function colorFunction(team) {
+		if(team[0].name == "League Average") {
+			return "#d09a49";
+		} else {
+			return "#598fbc";
+		}
+	}
+
+	data.teams.forEach( function (team) {
+		if(team.team[0].name == "League Average"){
+			svgLayer3.append("path").attr("d", line(team.team))
+			.style("stroke", "#FFAA00").style("fill", "none").style("stroke-opacity", "1").style("stroke-width", 4);
+
+			svgLayer2.append("text")
+			.attr("transform", "translate(" + (width - padding +3) + "," + textHeight(team.team) + ")")
+			.attr("text-anchor", "start")
+			.style("color", "#C0C0C0")
+			.style("font-size", "5pt")
+			.style("font-weight", "bold")
+			.text(text(team.team));
+
+		} else if (team.team[0].name == "Anaheim Ducks" || team.team[0].name == "Tampa Bay Lightning" || team.team[0].name == "Winnipeg Jets"){
+
+			svgLayer2.append("path").attr("d", line(team.team))
+				.style("stroke", colorFunction(team.team)).style("fill", "none").style("stroke-opacity", ".7").style("stroke-width", 2);
+
+				svgLayer2.append("text")
+				.attr("transform", "translate(" + (width - padding +3) + "," + textHeight(team.team) + ")")
+				.attr("text-anchor", "start")
+				.style("color", "#C0C0C0")
+				.style("font-size", "5pt")
+				.style("font-weight", "bold")
+				.text(text(team.team));
+
+
+		} else if (team.team[0].name == "Toronto Maple Leafs" || team.team[0].name == "Edmonton Oilers" || team.team[0].name == "Phoenix Coyotes"){
+
+			svgLayer2.append("path").attr("d", line(team.team))
+							.style("stroke", "#d1776d").style("fill", "none").style("stroke-opacity", ".7").style("stroke-width", 2);
+
+							svgLayer2.append("text")
+							.attr("transform", "translate(" + (width - padding +3) + "," + textHeight(team.team) + ")")
+							.attr("text-anchor", "start")
+							.style("color", "#C0C0C0")
+							.style("font-size", "5pt")
+							.style("font-weight", "bold")
+							.text(text(team.team));
+
+		} else {
+
+			if ((team.team[0].wins/team.team[0].games_played) - (team.team[1].wins/team.team[12].games_played) > 0){
+				svgLayer1.append("path").attr("d", line(team.team))
+					.style("stroke", "#d1776d").style("fill", "none").style("stroke-opacity", "0.2");
+			} else {
+				svgLayer1.append("path").attr("d", line(team.team))
+					.style("stroke", colorFunction(team.team)).style("fill", "none").style("stroke-opacity", "0.2");
+			}
+		}
+	});
+});
+
+svg.append("g").attr("transform", "translate(0, " + (height - padding) + ")").attr("class", "axis").call(xAxis).append("text").style("text-anchor", "middle").attr("x", (width - padding)/2).attr("y", padding);
+//.text("Year");;
+svg.append("g").attr("transform", "translate(" + padding + ",0)").attr("class", "axis").call(yAxis).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height/2).attr("y", -padding/1.5).text("Average Goals Per Game");
+
+
+</script>
+
+
+    <h3> Are the referees calling less penalties? </h3>
+    <p>While the game of hockey has gotten more violent as time has gone on, it seems like more of these "cheap shots" are
+    becoming the norm, as referees seem to have become desenitized to dirtier play, and are calling less penalties as a result.</p>
+    <p>To test this theory we plotted the number of Penalty Minutes per season, and we can definately see a downtrend.</p>
+    
+    <div id="PIMmins"></div>
+
+<script>
+var PIMsvg = d3.select("#PIMmins").append("svg")
+    .attr("width", 750)
+    .attr("height",520);
+
+var g = PIMsvg.append("g");
+var t0 = new Date(2001);
+var tEnd = new Date(2014);
+var parseDate = d3.time.format("%Y");
+var padding = 70;
+var PIM_xScale = d3.time.scale().domain([t0, tEnd]).range([padding, width - padding]);
+
+var PIM_yScale = d3.scale.linear().domain([0, 2000]).range([height - padding, padding]);
+var PIM_xAxis = d3.svg.axis().scale(PIM_xScale).orient("bottom").ticks(14).tickFormat(d3.format("23d")).tickPadding(10);
+var PIM_yAxis = d3.svg.axis().scale(PIM_yScale).orient("left").ticks(10).tickPadding(10).tickFormat(d3.format("d"));
+var color = d3.scale.category10();
+
+var PIM_svgLayer1 = PIMsvg.append("g");
+var PIM_svgLayer2 = PIMsvg.append("g");
+var PIM_svgLayer3 = PIMsvg.append("g");
+
+d3.json("penaltyMins.json", function(error, data){
+    if (error) {
+		console.log(error);
+	}
+    var yr_array = ["2001","2002","2003","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014"];
+    for(var team_name in data){
+        data[team_name][10] = data[team_name][10] * (82/46);
+        var thing;
+        thing = data[team_name].map(function(_, idx){
+            return {x: yr_array[idx], y: data[team_name][idx] };
+        });
+        var line = d3.svg.line()
+            .x(function(d) { 
+                var parseDate = d3.time.format("%Y");
+                var date = new Date("1-01-"+ d.x);
+                year = parseDate(date);
+                return xScale(year);})
+            .y(function(d){return PIM_yScale(d.y);});
+        
+        
+        
+        
+        
+        
+        
+        if(team_name == "Edmonton Oilers" || team_name == "Phoenix Coyotes" || team_name == "Toronto Maple Leafs" ){
+            PIMsvg.append("path").attr("d",line(thing))
+                .style("stroke", "#d1776d")
+                .style("fill", "none")
+                .style("stroke-opacity", ".7")
+                .style("stroke-width", 2);
+                
+                PIM_svgLayer2.append("text")
+				.attr("transform", "translate(" + (width - padding +3) + "," + PIM_yScale(data[team_name][12] -40) + ")")
+				.attr("text-anchor", "start")
+				.style("color", "#C0C0C0")
+				.style("font-size", "5pt")
+				.style("font-weight", "bold")
+				.text(team_name);
+        }
+        else if(team_name == "Anaheim Ducks" || team_name == "Tampa Bay Lightning" || team_name == "Winnipeg Jets"){
+
+			PIMsvg.append("path").attr("d", line(thing))
+				.style("stroke", "#598fbc")
+                .style("fill", "none")
+                .style("stroke-opacity", ".7")
+                .style("stroke-width", 2);
+
+				PIM_svgLayer2.append("text")
+				.attr("transform", "translate(" + (width - padding +3) + "," + PIM_yScale(data[team_name][12] + 40)  + ")")
+				.attr("text-anchor", "start")
+				.style("color", "#C0C0C0")
+				.style("font-size", "5pt")
+				.style("font-weight", "bold")
+				.text(team_name);
+        }
+        else if(team_name == "League Average"){
+            PIMsvg.append("path").attr("d", line(thing))
+				.style("stroke", "#FFAA00")
+                .style("fill", "none")
+                .style("stroke-opacity", ".7")
+                .style("stroke-width", 5);
+                				
+            PIM_svgLayer2.append("text")
+				.attr("transform", "translate(" + (width - padding +3) + "," + PIM_yScale(data[team_name][12] + 20) + ")")
+				.attr("text-anchor", "start")
+				.style("color", "#C0C0C0")
+				.style("font-size", "5pt")
+				.style("font-weight", "bold")
+				.text(team_name);
+        }
+        else{
+            PIMsvg.append("path").attr("d", line(thing))
+				.style("stroke", "#598fbc")
+                .style("fill", "none")
+                .style("stroke-opacity", ".2")
+                .style("stroke-width", 1);
+        
+        
+        
+        }
+    }
+});
+PIMsvg.append("g").attr("transform", "translate(0, " + (height - padding) + ")").attr("class", "axis").call(PIM_xAxis).append("text").style("text-anchor", "middle").attr("x", (width - padding)/2).attr("y", padding);
+//.text("Year");;
+PIMsvg.append("g").attr("transform", "translate(" + padding + ",0)").attr("class", "axis").call(PIM_yAxis).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height/2).attr("y", -padding/1.5).text("Penalty Minutes");
+
+
+
+</script>
+<div id="stanelyCup">
+<h3>What predicts a Stanley Cup Winner?</h3>
+
+<p>"Shots on goal and a good Penalty Kill are what define a good team", is something my father and I consistantly 
+preached even when I was playing hockey growing up.
+Stanely Cup Winners have a good offense and defense throughout the season. 
+We graphed Penality Kill Percentage versus Average Shots Per Game to understand the composition of a Stanely Cup Winner more. 
+Penality Kill Percentage is a measure of a team's deffense. 
+It is a measure of how well a team does when short a player compared to the opposing team. 
+Average Shots Per Game is measuring the team's offense with the theory being you miss 100% of the shots you don't take.</p>
+
+
+<div id="key"></div>
+<script>
+	var key = d3.select("#key").append("svg").attr("width", 300).attr("height", 50);
+	key.append("circle").attr("r", 5).attr("cx", 5).attr("cy", 5).style("fill", "#3182bd").style("opacity", "1");
+	key.append("text").attr("transform", "translate(" + 15 + "," + 9 + ")")
+					.attr("text-anchor", "start")
+					.style("color", "#C0C0C0")
+					.style("font-size", "8pt")
+					.text("Stanely Cup Winner");
+	key.append("circle").attr("r", 5).attr("cx", 5).attr("cy", 30).style("fill", "#ffa500").style("opacity", "1");
+	key.append("text").attr("transform", "translate(" + 15 + "," + 35 + ")")
+					.attr("text-anchor", "start")
+					.style("color", "#C0C0C0")
+					.style("font-size", "8pt")
+					.text("League Average");
+
+</script>
+</div>
+
+<div id = "graph2015"></div>
+
+<div id = "graph2014"></div>
+
+<div id = "graph2013"></div>
+
+<div id = "graph2012"></div>
+
+<div id = "graph2011"></div>
+
+<div id = "graph2010"></div>
+
+<div id = "graph2009"></div>
+
+<div id = "graph2008"></div>
+
+<div id = "graph2007"></div>
+
+<div id = "graph2006"></div>
+
+<div id = "graph2004"></div>
+
+<div id = "graph2003"></div>
+
+<div id = "graph2002"></div>
+
+<div id = "graph2001"></div>
+
+<script>
+
+
+	var width2 = 200,
+    height2 = 200;
+	
+	var svg2 = d3.select("#graph2015").append("svg")
+	    .attr("width", width2)
+	    .attr("height", height2);
+
+	var padding2 = 30;
+	//var xScale2 = d3.scale.linear().domain([22,38]).range([padding2, width2 - padding2]);
+
+	var xScale2 = d3.scale.linear().domain([22,38]).range([padding2, width2 - padding2]);
+
+	//var yScale2 = d3.scale.linear().domain([1.7,3.7]).range([height2 - padding2, padding2]);
+
+	var yScale2 = d3.scale.linear().domain([.70,.90]).range([height2 - padding2, padding2]);
+
+	var rScale = d3.scale.sqrt().domain([0,1]).range([0,40]);
+	var xAxis2 = d3.svg.axis().scale(xScale2).orient("bottom").ticks(3).innerTickSize(0).outerTickSize(0).tickPadding(3);
+
+	var yAxis2 = d3.svg.axis().scale(yScale2).orient("left").tickSize(0).ticks(3).tickPadding(1).tickFormat(d3.format("%"));
+
+	//var colorScale = d3.scale.category20()
+
+	var svg2Layer2 = svg2.append("g");
+	var svg2Layer1 = svg2.append("g");
+
+
+	d3.csv("2015.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+		data.forEach( function(team) {
+
+			if(team.Team == "Chicago Blackhawks*"){
+				svg2Layer1.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg2Layer1.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Chicago Blackhawks");
+
+			} else if(team.Team == "League Average"){
+					svg2Layer2.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+			svg2Layer2.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg2.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2015").style("font-size", "10pt");
+	svg2.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2).text("Average Shots Per Game");;
+	svg2.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3).text("Penality Kill Percentage");
+
+/*---------------------------------------2014Graph -----------------------------------*/
+
+	
+	var svg3 = d3.select("#graph2014").append("svg")
+	    .attr("width", width2)
+	    .attr("height", height2);
+
+	var svg3Layer2 = svg3.append("g");
+	var svg3Layer1 = svg3.append("g");
+
+	d3.csv("2014.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+		data.forEach( function(team) {
+			if(team.Team == "Los Angeles Kings*"){
+				svg3Layer1.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg3Layer1.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Los Angeles Kings");
+
+			} else if(team.Team == "League Average"){
+				svg3Layer2.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg3Layer2.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+
+	});
+
+	svg3.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2014").style("font-size", "10pt");
+	svg3.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//.text("Average Shots Per Game");
+	svg3.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//.text("Average Goals Per Game");
+
+	var svg4 = d3.select("#graph2013").append("svg")
+	    .attr("width", width2)
+	    .attr("height", height2);
+
+	d3.csv("2013.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "Chicago Blackhawks*"){
+				svg4.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg4.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Chicago Blackhawks");
+
+			} else if(team.Team == "League Average"){
+					svg4.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg4.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg4.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2013").style("font-size", "10pt");
+	svg4.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//text("Average Shots Per Game");;
+	svg4.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//text("Average Goals Per Game");
+
+	/*--------------------------------------- 2012 GRAPH ---------------------------*/
+	var svg5 = d3.select("#graph2012").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+	d3.csv("2012.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "Los Angeles Kings*"){
+				svg5.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg5.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Los Angeles Kings");
+
+			} else if(team.Team == "League Average"){
+					svg5.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg5.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg5.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2012").style("font-size", "10pt");
+	svg5.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//text("Average Shots Per Game");
+	svg5.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//text("Average Goals Per Game");
+
+	/*--------------------------------------- 2011 GRAPH ---------------------------*/
+	var svg6 = d3.select("#graph2011").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+    var svg6Layer2 = svg6.append("g");
+	var svg6Layer1 = svg6.append("g");
+
+	d3.csv("2011.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "Boston Bruins*"){
+				svg6Layer1.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg6Layer1.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Boston Bruins");
+
+			} else if(team.Team == "League Average"){
+					svg6Layer2.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg6Layer2.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg6.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2011").style("font-size", "10pt");
+	svg6.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//text("Average Shots Per Game");;
+	svg6.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//text("Average Goals Per Game");
+
+
+		/*--------------------------------------- 2010 GRAPH ---------------------------*/
+	var svg7 = d3.select("#graph2010").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+	d3.csv("2010.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "Chicago Blackhawks*"){
+				svg7.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg7.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Chicago Blackhawks");
+
+			} else if(team.Team == "League Average"){
+				svg7.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+
+			} else {
+				svg7.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg7.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2010").style("font-size", "10pt");
+	svg7.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//.text("Average Shots Per Game");;
+	svg7.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//.text("Average Goals Per Game");
+
+
+	/*--------------------------------------- 2009 GRAPH ---------------------------*/
+	var svg8 = d3.select("#graph2009").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+
+    var svg8Layer2 = svg8.append("g");
+	var svg8Layer1 = svg8.append("g");
+
+	d3.csv("2009.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "Chicago Blackhawks*"){
+				svg8Layer1.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg8Layer1.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Chicago Blackhawks");
+
+			} else if(team.Team == "League Average"){
+					svg8Layer2.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg8Layer2.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg8.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2009").style("font-size", "10pt");
+	svg8.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//.text("Average Shots Per Game");;
+	svg8.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//.text("Average Goals Per Game");
+
+	/*--------------------------------------- 2008 GRAPH ---------------------------*/
+	var svg9 = d3.select("#graph2008").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+	d3.csv("2008.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "Detroit Red Wings*"){
+				svg9.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg9.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Detroit Red Wings");
+
+			} else if(team.Team == "League Average"){
+					svg9.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg9.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg9.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2008").style("font-size", "10pt");
+	svg9.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//.text("Average Shots Per Game");;
+	svg9.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//.text("Average Goals Per Game");
+
+	/*--------------------------------------- 2007 GRAPH ---------------------------*/
+	var svg10 = d3.select("#graph2007").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+	d3.csv("2007.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "Anaheim Ducks*"){
+				svg10.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg10.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Anaheim Ducks");
+
+			} else if(team.Team == "League Average"){
+					svg10.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg10.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg10.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2007").style("font-size", "10pt");
+	svg10.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);//.text("Average Shots Per Game");;
+	svg10.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//.text("Average Goals Per Game");
+
+
+	/*--------------------------------------- 2006 GRAPH ---------------------------*/
+	var svg11 = d3.select("#graph2006").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+	d3.csv("2006.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "Carolina Hurricanes*"){
+				svg11.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg11.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text(" Carolina Hurricanes");
+
+			} else if(team.Team == "League Average"){
+					svg11.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg11.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg11.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2006").style("font-size", "10pt");
+	svg11.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//.text("Average Shots Per Game");;
+	svg11.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//.text("Average Goals Per Game");
+
+
+	/*--------------------------------------- 2004 GRAPH ---------------------------*/
+	var svg12 = d3.select("#graph2004").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+	d3.csv("2004.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "Tampa Bay Lightning*"){
+				svg12.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg12.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Tampa Bay Lightning");
+
+			} else if(team.Team == "League Average"){
+					svg12.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg12.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg12.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2004").style("font-size", "10pt");
+	svg12.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//.text("Average Shots Per Game");;
+	svg12.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//.text("Average Goals Per Game");
+
+
+		/*--------------------------------------- 2003 GRAPH ---------------------------*/
+	var svg13 = d3.select("#graph2003").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+	d3.csv("2003.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "New Jersey Devils*"){
+				svg13.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg13.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("New Jersey Devils");
+
+			} 
+			else if(team.Team == "League Average"){
+					svg13.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg13.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg13.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2003").style("font-size", "10pt");
+	svg13.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//.text("Average Shots Per Game");;
+	svg13.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//.text("Average Goals Per Game");
+
+
+		/*--------------------------------------- 2002 GRAPH ---------------------------*/
+	var svg14 = d3.select("#graph2002").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+	d3.csv("2002.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "Detroit Red Wings*"){
+				svg14.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg14.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Detroit Red Wings");
+
+			} else if(team.Team == "League Average"){
+					svg14.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg14.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg14.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2002").style("font-size", "10pt");
+	svg14.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//.text("Average Shots Per Game");;
+	svg14.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//.text("Average Goals Per Game");
+
+
+	/*--------------------------------------- 2001 GRAPH ---------------------------*/
+	var svg15 = d3.select("#graph2001").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+    var svg15Layer2 = svg15.append("g");
+    var svg15Layer1 = svg15.append("g");
+
+	d3.csv("2001.csv", function(error, data){
+		if(error){
+			console.log(error);
+		}
+
+		data.forEach( function(team) {		
+			console.log(team.Team)
+			if(team.Team == "Colorado Avalanche*"){
+				svg15Layer1.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", "1");
+				svg15Layer1.append("text")
+					.attr("transform", "translate(" + xScale2(team.S/team.GP) + "," + yScale2(team.PK/100) + ")")
+					.attr("text-anchor", "start").attr("dy", "-1em")
+					.style("color", "#C0C0C0")
+					.style("font-size", "6pt")
+					.style("font-weight", "bold")
+					.text("Colorado Avalanche");
+
+			} else if(team.Team == "League Average"){
+					svg15Layer2.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#ffa500 ").style("opacity", "1");
+			} else {
+				svg15Layer2.append("circle").attr("r", 3).attr("cx", xScale2(team.S/team.GP)).attr("cy", yScale2(team.PK/100)).style("fill", "#3182bd").style("opacity", ".2");
+			}
+		});
+
+	});
+
+	svg15.append("g").attr("class", "title").append("text").style("text-anchor", "middle").attr("x", height2/2).attr("y", padding2/2).text("2001").style("font-size", "10pt");
+	svg15.append("g").attr("transform", "translate(0, " + (height2 - padding2) + ")").attr("class", "axis").call(xAxis2).append("text").style("text-anchor", "middle").attr("x", (width2/2)).attr("y", padding2);
+	//.text("Average Shots Per Game");;
+	svg15.append("g").attr("transform", "translate(" + padding2 + ",0)").attr("class", "axis").call(yAxis2).append("text").attr("transform", "rotate(-90)").style("text-anchor", "middle").attr("x", -height2/2).attr("y", -padding2/1.3);
+	//.text("Average Goals Per Game");
+
+
+
+
+	
+</script>
+
+
+</body>
+</html>
